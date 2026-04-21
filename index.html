@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حاسبة المعدل — إلكترونيك S4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+  :root {
+    --primary: #00b894;
+    --primary-dark: #00897b;
+    --primary-light: #55efc4;
+    --accent: #fd79a8;
+    --accent2: #fdcb6e;
+    --bg: #f0f4f8;
+    --bg2: #e8eef4;
+    --card: #ffffff;
+    --card2: #f7fbfd;
+    --text: #1a2332;
+    --text2: #4a5568;
+    --text3: #8898a8;
+    --border: #d0dde8;
+    --shadow: rgba(0,184,148,0.12);
+    --shadow2: rgba(0,0,0,0.08);
+    --input-bg: #f7fbfd;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --danger: #e17055;
+    --glass: rgba(255,255,255,0.85);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --font: 'Cairo', 'Tajawal', sans-serif;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --card: #1c2431;
+    --card2: #222d3a;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #484f58;
+    --border: #30363d;
+    --shadow: rgba(0,184,148,0.15);
+    --shadow2: rgba(0,0,0,0.4);
+    --input-bg: #1c2431;
+    --glass: rgba(28,36,49,0.92);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+    overflow-x: hidden;
+  }
+
+  /* ---- BACKGROUND DECORATION ---- */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,184,148,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -200px; left: -200px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(85,239,196,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ---- HEADER ---- */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+    box-shadow: 0 2px 20px var(--shadow2);
+  }
+
+  .header-brand {
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .brand-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(0,184,148,0.35);
+  }
+
+  .brand-text {
+    display: flex; flex-direction: column;
+  }
+
+  .brand-title {
+    font-size: 15px; font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .brand-sub {
+    font-size: 11px; color: var(--text3);
+    font-weight: 400;
+  }
+
+  .header-actions {
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .lang-switcher {
+    display: flex; background: var(--bg2);
+    border-radius: 30px; padding: 3px;
+    gap: 2px;
+  }
+
+  .lang-btn {
+    padding: 5px 12px; border-radius: 20px;
+    border: none; cursor: pointer;
+    font-size: 12px; font-weight: 600;
+    font-family: var(--font);
+    color: var(--text2);
+    background: transparent;
+    transition: all 0.25s;
+  }
+
+  .lang-btn.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,184,148,0.4);
+  }
+
+  .theme-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%; border: none;
+    background: var(--bg2); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; transition: all 0.25s;
+    color: var(--text);
+  }
+
+  .theme-btn:hover { background: var(--primary); color: #fff; transform: rotate(20deg); }
+
+  /* ---- HERO ---- */
+  .hero {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 52px 24px 36px;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(0,184,148,0.12);
+    border: 1px solid rgba(0,184,148,0.25);
+    padding: 6px 16px; border-radius: 30px;
+    font-size: 12px; font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 18px;
+    letter-spacing: 0.5px;
+  }
+
+  .hero h1 {
+    font-size: clamp(26px, 5vw, 40px);
+    font-weight: 900;
+    line-height: 1.3;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 15px; color: var(--text2);
+    max-width: 500px; margin: 0 auto 28px;
+    line-height: 1.7;
+  }
+
+  /* ---- STUDENT INFO ---- */
+  .student-card {
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 0 auto 32px;
+    padding: 0 20px;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 24px var(--shadow2);
+    overflow: hidden;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .card-header {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .card-header-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 2px 8px rgba(0,184,148,0.3);
+  }
+
+  .card-title { font-size: 15px; font-weight: 700; color: var(--text); }
+
+  .student-fields {
+    padding: 20px 24px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 600px) {
+    .student-fields { grid-template-columns: 1fr; }
+  }
+
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  .field-label { font-size: 12px; font-weight: 600; color: var(--text2); }
+
+  .field-input {
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    transition: all 0.2s;
+    outline: none;
+  }
+
+  .field-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0,184,148,0.12);
+  }
+
+  /* ---- MAIN CONTENT ---- */
+  .main-content {
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 0 auto;
+    padding: 0 20px 40px;
+  }
+
+  /* ---- SECTION TITLE ---- */
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .section-line {
+    flex: 1; height: 1px;
+    background: linear-gradient(to left, transparent, var(--border));
+  }
+
+  .section-text {
+    font-size: 13px; font-weight: 700;
+    color: var(--text3); letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* ---- SUBJECT CARDS ---- */
+  .subjects-grid {
+    display: flex; flex-direction: column; gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .subject-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: all 0.25s;
+    box-shadow: 0 2px 12px var(--shadow2);
+  }
+
+  .subject-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 20px var(--shadow);
+    transform: translateY(-1px);
+  }
+
+  .subject-header {
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .subject-left { display: flex; align-items: center; gap: 12px; }
+
+  .subject-coeff {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,184,148,0.3);
+  }
+
+  .subject-info { display: flex; flex-direction: column; gap: 2px; }
+  .subject-name { font-size: 14px; font-weight: 700; color: var(--text); }
+
+  .subject-type-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 20px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.5px;
+    width: fit-content;
+  }
+
+  .badge-exam { background: rgba(0,184,148,0.1); color: var(--primary); }
+  .badge-tp { background: rgba(253,121,168,0.1); color: #e84393; }
+  .badge-mix { background: rgba(253,203,110,0.1); color: #d4a017; }
+
+  .subject-right { display: flex; align-items: center; gap: 12px; }
+
+  .subject-grade-preview {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 600;
+    min-width: 52px; text-align: center;
+  }
+
+  .grade-empty { color: var(--text3); }
+  .grade-good { color: var(--success); }
+  .grade-warn { color: var(--warning); }
+  .grade-bad { color: var(--danger); }
+
+  .chevron {
+    font-size: 12px; color: var(--text3);
+    transition: transform 0.25s;
+  }
+
+  .subject-body {
+    padding: 0 20px;
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.2s;
+  }
+
+  .subject-card.open .subject-body {
+    max-height: 400px;
+    padding: 0 20px 18px;
+  }
+
+  .subject-card.open .chevron { transform: rotate(180deg); }
+
+  .inputs-row {
+    display: flex; gap: 14px; flex-wrap: wrap;
+  }
+
+  .input-group {
+    flex: 1; min-width: 130px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+
+  .input-label {
+    font-size: 11px; font-weight: 700;
+    color: var(--text2); text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  .input-pct {
+    font-size: 10px;
+    background: var(--bg2);
+    padding: 2px 6px; border-radius: 10px;
+    color: var(--text3);
+  }
+
+  .grade-input {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px; font-weight: 600;
+    text-align: center;
+    transition: all 0.2s; outline: none;
+    width: 100%;
+  }
+
+  .grade-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0,184,148,0.12);
+  }
+
+  .grade-input::placeholder { color: var(--text3); font-weight: 400; font-size: 13px; }
+
+  .formula-hint {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--card2);
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--border);
+    font-size: 11px; color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+  }
+
+  /* ---- S3 INPUT SECTION ---- */
+  .s3-section {
+    margin-bottom: 28px;
+  }
+
+  .s3-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    display: flex; align-items: center; gap: 20px;
+    box-shadow: 0 2px 12px var(--shadow2);
+    flex-wrap: wrap;
+  }
+
+  .s3-left { flex: 1; min-width: 200px; }
+  .s3-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .s3-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
+
+  .s3-right {
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .s3-input-wrap { position: relative; }
+
+  .s3-input {
+    width: 120px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .s3-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(0,184,148,0.12);
+  }
+
+  .s3-link-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 18px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff; border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer; font-family: var(--font);
+    font-size: 13px; font-weight: 700;
+    text-decoration: none;
+    transition: all 0.25s;
+    white-space: nowrap;
+    box-shadow: 0 3px 12px rgba(0,184,148,0.35);
+  }
+
+  .s3-link-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,184,148,0.45);
+  }
+
+  /* ---- RESULTS ---- */
+  .results-section { margin-bottom: 28px; }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+  }
+
+  .result-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 22px 20px;
+    text-align: center;
+    position: relative; overflow: hidden;
+    box-shadow: 0 2px 12px var(--shadow2);
+    transition: all 0.3s;
+  }
+
+  .result-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(to right, var(--primary), var(--primary-light));
+  }
+
+  .result-card.annual::before {
+    background: linear-gradient(to right, #a29bfe, #6c5ce7);
+  }
+
+  .result-label {
+    font-size: 11px; font-weight: 700;
+    color: var(--text3); text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 10px;
+  }
+
+  .result-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 38px; font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .result-card.annual .result-value { color: #6c5ce7; }
+
+  .result-sub {
+    font-size: 11px; color: var(--text3);
+  }
+
+  .result-status {
+    margin-top: 10px;
+    display: inline-block;
+    padding: 3px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+  }
+
+  .status-pass { background: rgba(0,184,148,0.12); color: var(--success); }
+  .status-fail { background: rgba(225,112,85,0.12); color: var(--danger); }
+  .status-warn { background: rgba(253,203,110,0.12); color: #d4a017; }
+
+  /* ---- ACTION BUTTONS ---- */
+  .actions-section {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+
+  .btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 13px 22px;
+    border-radius: var(--radius-sm);
+    border: none; cursor: pointer;
+    font-family: var(--font);
+    font-size: 14px; font-weight: 700;
+    transition: all 0.25s;
+    flex: 1; min-width: 160px;
+    justify-content: center;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0,184,148,0.35);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,184,148,0.45);
+  }
+
+  .btn-secondary {
+    background: var(--card);
+    color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
+  }
+
+  .btn-danger {
+    background: var(--card);
+    color: var(--danger);
+    border: 1.5px solid rgba(225,112,85,0.3);
+  }
+
+  .btn-danger:hover {
+    background: rgba(225,112,85,0.08);
+    border-color: var(--danger);
+  }
+
+  /* ---- TOAST ---- */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 24px;
+    font-size: 14px; font-weight: 600;
+    box-shadow: 0 8px 32px var(--shadow2);
+    z-index: 9999;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex; align-items: center; gap: 8px;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast-success { border-color: var(--success); color: var(--success); }
+  .toast-info { border-color: var(--primary); color: var(--primary); }
+
+  /* ---- FOOTER ---- */
+  footer {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 32px 20px 40px;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-dev {
+    font-size: 13px; color: var(--text3);
+    margin-bottom: 8px;
+  }
+
+  .footer-dev strong { color: var(--primary); }
+
+  .footer-links {
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .footer-link {
+    font-size: 12px; color: var(--text3);
+    text-decoration: none;
+    transition: color 0.2s;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  .footer-link:hover { color: var(--primary); }
+
+  /* ---- PROGRESS BAR ---- */
+  .progress-bar-wrap {
+    height: 4px; background: var(--border);
+    border-radius: 2px; overflow: hidden;
+    margin-bottom: 28px;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(to left, var(--primary-light), var(--primary));
+    border-radius: 2px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* ---- SCROLL ANIMATIONS ---- */
+  .fade-in {
+    opacity: 0; transform: translateY(20px);
+    animation: fadeIn 0.5s forwards;
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .subject-card:nth-child(1) { animation-delay: 0.05s; }
+  .subject-card:nth-child(2) { animation-delay: 0.10s; }
+  .subject-card:nth-child(3) { animation-delay: 0.15s; }
+  .subject-card:nth-child(4) { animation-delay: 0.20s; }
+  .subject-card:nth-child(5) { animation-delay: 0.25s; }
+  .subject-card:nth-child(6) { animation-delay: 0.30s; }
+  .subject-card:nth-child(7) { animation-delay: 0.35s; }
+  .subject-card:nth-child(8) { animation-delay: 0.40s; }
+  .subject-card:nth-child(9) { animation-delay: 0.45s; }
+  .subject-card:nth-child(10) { animation-delay: 0.50s; }
+  .subject-card:nth-child(11) { animation-delay: 0.55s; }
+
+  /* ---- DIVIDER ---- */
+  .group-divider {
+    padding: 6px 0 12px;
+    font-size: 11px; font-weight: 700;
+    color: var(--text3); text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 8px;
+  }
+
+  .group-divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--border);
+  }
+
+  /* ---- COEFFICIENT TAG ---- */
+  .coeff-tag {
+    font-size: 10px; color: var(--text3);
+    margin-top: 2px;
+  }
+
+  /* RTL inputs */
+  [dir="rtl"] .grade-input,
+  [dir="rtl"] .s3-input,
+  [dir="rtl"] .field-input {
+    text-align: center;
+  }
+
+  [lang="fr"] body,
+  [lang="en"] body {
+    direction: ltr;
+  }
+
+  .ltr { direction: ltr; }
+  .rtl { direction: rtl; }
+
+  @media (max-width: 500px) {
+    .results-grid { grid-template-columns: 1fr 1fr; }
+    .result-value { font-size: 28px; }
+    header { padding: 0 12px; }
+    .brand-sub { display: none; }
+    .s3-right { width: 100%; justify-content: space-between; }
+  }
+
+  /* ---- SHIMMER EFFECT ---- */
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  .result-value.calculating {
+    background: linear-gradient(90deg, var(--primary) 25%, var(--primary-light) 50%, var(--primary) 75%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 1.5s linear infinite;
+  }
+
+  /* Pulse on result update */
+  @keyframes pulse-once {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  .pulse { animation: pulse-once 0.4s ease; }
+</style>
+</head>
+<body data-theme="light">
+
+<!-- HEADER -->
+<header>
+  <div class="header-brand">
+    <div class="brand-icon">🎓</div>
+    <div class="brand-text">
+      <div class="brand-title" data-i18n="site_title">حاسبة المعدل — S4</div>
+      <div class="brand-sub" data-i18n="site_sub">إلكترونيك · ليسانس سنة ثانية</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('ar')">ع</button>
+      <button class="lang-btn" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" title="تبديل الثيم">🌙</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero fade-in">
+  <div class="hero-badge">
+    <span>⚡</span>
+    <span data-i18n="hero_badge">السداسي الرابع · S4 · 2025/2026</span>
+  </div>
+  <h1><span data-i18n="hero_title">احسب معدلك</span> <span data-i18n="hero_title2">بدقة واحترافية</span></h1>
+  <p data-i18n="hero_desc">منصة متخصصة لطلبة الإلكترونيك — ليسانس سنة ثانية. أدخل نقاطك وسيتم حساب المعدل تلقائياً مع دعم التصدير الرسمي.</p>
+</div>
+
+<!-- STUDENT INFO -->
+<div class="student-card fade-in">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">👤</div>
+      <div class="card-title" data-i18n="student_info">معلومات الطالب</div>
+    </div>
+    <div class="student-fields">
+      <div class="field-group">
+        <label class="field-label" data-i18n="label_lastname">اللقب</label>
+        <input type="text" class="field-input" id="student_lastname" data-i18n-ph="ph_lastname" placeholder="مثال: بن يوسف" oninput="saveData()">
+      </div>
+      <div class="field-group">
+        <label class="field-label" data-i18n="label_firstname">الاسم</label>
+        <input type="text" class="field-input" id="student_firstname" data-i18n-ph="ph_firstname" placeholder="مثال: أحمد" oninput="saveData()">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+  <!-- PROGRESS -->
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <!-- SUBJECTS -->
+  <div class="section-label">
+    <span class="section-text" data-i18n="section_subjects">المواد والنقاط</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="subjects-grid" id="subjectsGrid">
+    <!-- Generated by JS -->
+  </div>
+
+  <!-- S3 SECTION -->
+  <div class="s3-section">
+    <div class="section-label">
+      <span class="section-text" data-i18n="section_annual">المعدل السنوي</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card s3-card">
+      <div class="s3-left">
+        <div class="s3-title" data-i18n="s3_title">معدل السداسي الثالث (S3)</div>
+        <div class="s3-desc" data-i18n="s3_desc">أدخل معدل S3 لحساب المعدل السنوي. يمكنك حسابه عبر الزر المجاور ←</div>
+      </div>
+      <div class="s3-right">
+        <input type="number" class="s3-input" id="s3_grade" min="0" max="20" step="0.01"
+          placeholder="—" oninput="saveData(); calcAll()">
+        <a href="https://fertasmohammedredha-stack.github.io/semester-average/"
+           target="_blank" class="s3-link-btn">
+          <span>🔗</span>
+          <span data-i18n="s3_btn">احسب S3</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-section">
+    <div class="section-label">
+      <span class="section-text" data-i18n="section_results">النتائج</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="results-grid">
+      <div class="result-card">
+        <div class="result-label" data-i18n="res_s4">معدل S4</div>
+        <div class="result-value" id="res_s4">—</div>
+        <div class="result-sub" data-i18n="res_coeff">/ 17 معامل</div>
+        <div class="result-status" id="res_s4_status"></div>
+      </div>
+      <div class="result-card annual">
+        <div class="result-label" data-i18n="res_annual">المعدل السنوي</div>
+        <div class="result-value" id="res_annual">—</div>
+        <div class="result-sub" data-i18n="res_s3s4">(S3 + S4) ÷ 2</div>
+        <div class="result-status" id="res_annual_status"></div>
+      </div>
+      <div class="result-card">
+        <div class="result-label" data-i18n="res_filled">المواد المُدخلة</div>
+        <div class="result-value" id="res_filled" style="color:var(--accent2)">0</div>
+        <div class="result-sub" data-i18n="res_of">من أصل 11</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions-section">
+    <button class="btn btn-primary" onclick="exportPDF()">
+      <span>📄</span>
+      <span data-i18n="btn_pdf">تصدير كشف النقاط PDF</span>
+    </button>
+    <button class="btn btn-secondary" onclick="saveData(); showToast('💾', 'saved_msg')">
+      <span>💾</span>
+      <span data-i18n="btn_save">حفظ البيانات</span>
+    </button>
+    <button class="btn btn-danger" onclick="confirmReset()">
+      <span>🗑️</span>
+      <span data-i18n="btn_reset">مسح الكل</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-dev">
+    <span data-i18n="dev_by">تصميم وتطوير ← </span>
+    <strong>Fertas Mohammed Redha</strong>
+  </div>
+  <div class="footer-links">
+    <a href="https://fertasmohammedredha-stack.github.io/semester-average/" target="_blank" class="footer-link">
+      <span>🔗</span>
+      <span data-i18n="footer_s3">موقع حساب S3</span>
+    </a>
+    <span style="color:var(--border)">·</span>
+    <span class="footer-link" style="cursor:default">
+      <span>📅</span>
+      <span>2025/2026</span>
+    </span>
+    <span style="color:var(--border)">·</span>
+    <span class="footer-link" style="cursor:default">
+      <span>🏛️</span>
+      <span data-i18n="footer_uni">إلكترونيك · ليسانس S4</span>
+    </span>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================
+// TRANSLATIONS
+// =============================================
+const i18n = {
+  ar: {
+    site_title: "حاسبة المعدل — S4",
+    site_sub: "إلكترونيك · ليسانس سنة ثانية",
+    hero_badge: "السداسي الرابع · S4 · 2025/2026",
+    hero_title: "احسب معدلك",
+    hero_title2: "بدقة واحترافية",
+    hero_desc: "منصة متخصصة لطلبة الإلكترونيك — ليسانس سنة ثانية. أدخل نقاطك وسيتم حساب المعدل تلقائياً مع دعم التصدير الرسمي.",
+    student_info: "معلومات الطالب",
+    label_lastname: "اللقب",
+    label_firstname: "الاسم",
+    ph_lastname: "مثال: بن يوسف",
+    ph_firstname: "مثال: أحمد",
+    section_subjects: "المواد والنقاط",
+    section_annual: "المعدل السنوي",
+    section_results: "النتائج",
+    s3_title: "معدل السداسي الثالث (S3)",
+    s3_desc: "أدخل معدل S3 لحساب المعدل السنوي. يمكنك حسابه عبر الزر المجاور ←",
+    s3_btn: "احسب S3",
+    res_s4: "معدل S4",
+    res_coeff: "/ 17 معامل",
+    res_annual: "المعدل السنوي",
+    res_s3s4: "(S3 + S4) ÷ 2",
+    res_filled: "المواد المُدخلة",
+    res_of: "من أصل 11",
+    btn_pdf: "تصدير كشف النقاط PDF",
+    btn_save: "حفظ البيانات",
+    btn_reset: "مسح الكل",
+    dev_by: "تصميم وتطوير ← ",
+    footer_s3: "موقع حساب S3",
+    footer_uni: "إلكترونيك · ليسانس S4",
+    saved_msg: "تم حفظ البيانات بنجاح!",
+    reset_msg: "تم مسح جميع البيانات",
+    pdf_msg: "جاري تصدير الكشف...",
+    pass: "ناجح ✓",
+    fail: "راسب ✗",
+    avg: "متوسط",
+    grade_label_td: "التقييم المستمر (TD)",
+    grade_label_exam: "الاختبار",
+    grade_label_tp: "الأعمال التطبيقية (TP)",
+    formula_td_exam: "المعادلة: (TD × 0.40) + (Exam × 0.60)",
+    formula_tp_exam: "المعادلة: (TP × 0.50) + (Exam × 0.50)",
+    formula_tp: "المعادلة: TP = 100%",
+    formula_exam: "المعادلة: Exam = 100%",
+    type_td_exam: "TD + اختبار",
+    type_tp_exam: "TP + اختبار",
+    type_tp: "أعمال تطبيقية",
+    type_exam: "اختبار فقط",
+    coeff: "معامل",
+    grade_placeholder: "—",
+    pdf_title: "كشف النقاط الرسمي",
+    pdf_semester: "السداسي الرابع — S4",
+    pdf_year: "السنة الجامعية: 2025/2026",
+    pdf_specialty: "التخصص: إلكترونيك — ليسانس سنة ثانية",
+    pdf_student: "الطالب",
+    pdf_col_subject: "المقياس",
+    pdf_col_coeff: "المعامل",
+    pdf_col_grade: "العلامة",
+    pdf_col_weighted: "المعدل المرجح",
+    pdf_col_type: "النوع",
+    pdf_s4avg: "معدل S4",
+    pdf_s3avg: "معدل S3",
+    pdf_annual: "المعدل السنوي",
+    pdf_footer: "وثيقة صادرة عن منصة حساب المعدل — Fertas Mohammed Redha",
+    confirm_reset: "هل أنت متأكد من مسح جميع البيانات؟",
+    no_grade: "—",
+    pdf_ar_notice: "PDF سيصدر بالفرنسية (دعم عربي غير متاح)",
+  },
+  fr: {
+    site_title: "Calculateur — S4",
+    site_sub: "Électronique · Licence 2ème année",
+    hero_badge: "Semestre 4 · S4 · 2025/2026",
+    hero_title: "Calculez votre",
+    hero_title2: "moyenne facilement",
+    hero_desc: "Plateforme dédiée aux étudiants en Électronique — Licence 2ème année. Saisissez vos notes et la moyenne est calculée automatiquement.",
+    student_info: "Informations étudiant",
+    label_lastname: "Nom",
+    label_firstname: "Prénom",
+    ph_lastname: "Ex: Benyoucef",
+    ph_firstname: "Ex: Ahmed",
+    section_subjects: "Matières et Notes",
+    section_annual: "Moyenne Annuelle",
+    section_results: "Résultats",
+    s3_title: "Moyenne du Semestre 3 (S3)",
+    s3_desc: "Saisissez la moyenne S3 pour calculer la moyenne annuelle. Calculez-la via le bouton →",
+    s3_btn: "Calculer S3",
+    res_s4: "Moyenne S4",
+    res_coeff: "/ 17 crédits",
+    res_annual: "Moyenne Annuelle",
+    res_s3s4: "(S3 + S4) ÷ 2",
+    res_filled: "Matières saisies",
+    res_of: "sur 11",
+    btn_pdf: "Exporter Relevé PDF",
+    btn_save: "Sauvegarder",
+    btn_reset: "Tout effacer",
+    dev_by: "Conçu par ",
+    footer_s3: "Calculateur S3",
+    footer_uni: "Électronique · Licence S4",
+    saved_msg: "Données sauvegardées!",
+    reset_msg: "Données effacées",
+    pdf_msg: "Exportation en cours...",
+    pass: "Admis ✓",
+    fail: "Ajourné ✗",
+    avg: "Passable",
+    grade_label_td: "Travaux Dirigés (TD)",
+    grade_label_exam: "Examen",
+    grade_label_tp: "Travaux Pratiques (TP)",
+    formula_td_exam: "Formule: (TD × 0.40) + (Exam × 0.60)",
+    formula_tp_exam: "Formule: (TP × 0.50) + (Exam × 0.50)",
+    formula_tp: "Formule: TP = 100%",
+    formula_exam: "Formule: Exam = 100%",
+    type_td_exam: "TD + Examen",
+    type_tp_exam: "TP + Examen",
+    type_tp: "Travaux Pratiques",
+    type_exam: "Examen uniquement",
+    coeff: "Coeff",
+    grade_placeholder: "—",
+    pdf_title: "Relevé de Notes Officiel",
+    pdf_semester: "Semestre 4 — S4",
+    pdf_year: "Année universitaire: 2025/2026",
+    pdf_specialty: "Spécialité: Électronique — Licence 2ème année",
+    pdf_student: "Étudiant",
+    pdf_col_subject: "Matière",
+    pdf_col_coeff: "Coeff",
+    pdf_col_grade: "Note",
+    pdf_col_weighted: "Note pondérée",
+    pdf_col_type: "Type",
+    pdf_s4avg: "Moyenne S4",
+    pdf_s3avg: "Moyenne S3",
+    pdf_annual: "Moyenne Annuelle",
+    pdf_footer: "Document généré par la plateforme — Fertas Mohammed Redha",
+    confirm_reset: "Êtes-vous sûr de vouloir effacer toutes les données?",
+    no_grade: "—",
+  },
+  en: {
+    site_title: "GPA Calculator — S4",
+    site_sub: "Electronics · Bachelor 2nd year",
+    hero_badge: "Semester 4 · S4 · 2025/2026",
+    hero_title: "Calculate your",
+    hero_title2: "GPA accurately",
+    hero_desc: "Dedicated platform for Electronics students — Bachelor 2nd year. Enter your grades and your average is calculated automatically.",
+    student_info: "Student Information",
+    label_lastname: "Last Name",
+    label_firstname: "First Name",
+    ph_lastname: "e.g. Benyoucef",
+    ph_firstname: "e.g. Ahmed",
+    section_subjects: "Subjects & Grades",
+    section_annual: "Annual Average",
+    section_results: "Results",
+    s3_title: "Semester 3 (S3) Average",
+    s3_desc: "Enter your S3 average to calculate the annual GPA. Calculate it via the button →",
+    s3_btn: "Calculate S3",
+    res_s4: "S4 Average",
+    res_coeff: "/ 17 credits",
+    res_annual: "Annual Average",
+    res_s3s4: "(S3 + S4) ÷ 2",
+    res_filled: "Subjects entered",
+    res_of: "out of 11",
+    btn_pdf: "Export Transcript PDF",
+    btn_save: "Save Data",
+    btn_reset: "Reset All",
+    dev_by: "Developed by ",
+    footer_s3: "S3 Calculator",
+    footer_uni: "Electronics · Bachelor S4",
+    saved_msg: "Data saved successfully!",
+    reset_msg: "All data cleared",
+    pdf_msg: "Exporting transcript...",
+    pass: "Pass ✓",
+    fail: "Fail ✗",
+    avg: "Average",
+    grade_label_td: "Continuous Assessment (TD)",
+    grade_label_exam: "Exam",
+    grade_label_tp: "Practical Work (TP)",
+    formula_td_exam: "Formula: (TD × 0.40) + (Exam × 0.60)",
+    formula_tp_exam: "Formula: (TP × 0.50) + (Exam × 0.50)",
+    formula_tp: "Formula: TP = 100%",
+    formula_exam: "Formula: Exam = 100%",
+    type_td_exam: "TD + Exam",
+    type_tp_exam: "TP + Exam",
+    type_tp: "Practical Work",
+    type_exam: "Exam only",
+    coeff: "Coeff",
+    grade_placeholder: "—",
+    pdf_title: "Official Transcript",
+    pdf_semester: "Semester 4 — S4",
+    pdf_year: "Academic Year: 2025/2026",
+    pdf_specialty: "Specialty: Electronics — Bachelor 2nd Year",
+    pdf_student: "Student",
+    pdf_col_subject: "Subject",
+    pdf_col_coeff: "Coeff",
+    pdf_col_grade: "Grade",
+    pdf_col_weighted: "Weighted Grade",
+    pdf_col_type: "Type",
+    pdf_s4avg: "S4 Average",
+    pdf_s3avg: "S3 Average",
+    pdf_annual: "Annual Average",
+    pdf_footer: "Generated by GPA Calculator Platform — Fertas Mohammed Redha",
+    confirm_reset: "Are you sure you want to clear all data?",
+    no_grade: "—",
+  }
+};
+
+// =============================================
+// SUBJECTS DATA
+// =============================================
+const SUBJECTS = [
+  { id: "ef2",   name_ar: "Electronique fondamentale 2",            coeff: 3, type: "TD_EXAM" },
+  { id: "lcs",   name_ar: "Logique combinatoire et séquentielle",   coeff: 2, type: "TD_EXAM" },
+  { id: "mn",    name_ar: "Méthodes numériques",                    coeff: 2, type: "TD_EXAM" },
+  { id: "ts",    name_ar: "Théorie du signal",                      coeff: 2, type: "TD_EXAM" },
+  { id: "mee",   name_ar: "Mesures électriques et électroniques",   coeff: 2, type: "TP_EXAM" },
+  { id: "tpef2", name_ar: "TP Electronique fondamentale 2",         coeff: 1, type: "TP" },
+  { id: "tplcs", name_ar: "TP Logique combinatoire et séquentielle",coeff: 1, type: "TP" },
+  { id: "tpmn",  name_ar: "TP Méthodes numériques",                 coeff: 1, type: "TP" },
+  { id: "epc",   name_ar: "Eléments de physique des composants él.",coeff: 1, type: "EXAM" },
+  { id: "tce",   name_ar: "Technologie des composants Electroniques",coeff: 1, type: "EXAM" },
+  { id: "tec",   name_ar: "Techniques d'expression et de communication",coeff: 1, type: "EXAM" },
+];
+
+const TOTAL_COEFF = SUBJECTS.reduce((s, x) => s + x.coeff, 0); // 17
+
+let currentLang = 'ar';
+let currentTheme = 'light';
+
+// =============================================
+// BUILD UI
+// =============================================
+function buildSubjects() {
+  const grid = document.getElementById('subjectsGrid');
+  grid.innerHTML = '';
+
+  SUBJECTS.forEach((subj, idx) => {
+    const t = i18n[currentLang];
+    const card = document.createElement('div');
+    card.className = 'subject-card fade-in';
+    card.id = 'card_' + subj.id;
+
+    const badgeClass = subj.type === 'TD_EXAM' ? 'badge-exam' :
+                       subj.type === 'TP_EXAM' ? 'badge-mix' :
+                       subj.type === 'TP'      ? 'badge-tp' : 'badge-exam';
+
+    const typeLabel = subj.type === 'TD_EXAM' ? t.type_td_exam :
+                      subj.type === 'TP_EXAM' ? t.type_tp_exam :
+                      subj.type === 'TP'      ? t.type_tp : t.type_exam;
+
+    let inputsHTML = '';
+    let formulaHTML = '';
+
+    if (subj.type === 'TD_EXAM') {
+      inputsHTML = `
+        <div class="input-group">
+          <div class="input-label">${t.grade_label_td} <span class="input-pct">40%</span></div>
+          <input type="number" class="grade-input" id="${subj.id}_td" min="0" max="20" step="0.25"
+            placeholder="0 — 20" oninput="calcSubject('${subj.id}'); saveData()">
+        </div>
+        <div class="input-group">
+          <div class="input-label">${t.grade_label_exam} <span class="input-pct">60%</span></div>
+          <input type="number" class="grade-input" id="${subj.id}_exam" min="0" max="20" step="0.25"
+            placeholder="0 — 20" oninput="calcSubject('${subj.id}'); saveData()">
+        </div>`;
+      formulaHTML = t.formula_td_exam;
+    } else if (subj.type === 'TP_EXAM') {
+      inputsHTML = `
+        <div class="input-group">
+          <div class="input-label">${t.grade_label_tp} <span class="input-pct">50%</span></div>
+          <input type="number" class="grade-input" id="${subj.id}_tp" min="0" max="20" step="0.25"
+            placeholder="0 — 20" oninput="calcSubject('${subj.id}'); saveData()">
+        </div>
+        <div class="input-group">
+          <div class="input-label">${t.grade_label_exam} <span class="input-pct">50%</span></div>
+          <input type="number" class="grade-input" id="${subj.id}_exam" min="0" max="20" step="0.25"
+            placeholder="0 — 20" oninput="calcSubject('${subj.id}'); saveData()">
+        </div>`;
+      formulaHTML = t.formula_tp_exam;
+    } else if (subj.type === 'TP') {
+      inputsHTML = `
+        <div class="input-group">
+          <div class="input-label">${t.grade_label_tp} <span class="input-pct">100%</span></div>
+          <input type="number" class="grade-input" id="${subj.id}_tp" min="0" max="20" step="0.25"
+            placeholder="0 — 20" oninput="calcSubject('${subj.id}'); saveData()">
+        </div>`;
+      formulaHTML = t.formula_tp;
+    } else if (subj.type === 'EXAM') {
+      inputsHTML = `
+        <div class="input-group">
+          <div class="input-label">${t.grade_label_exam} <span class="input-pct">100%</span></div>
+          <input type="number" class="grade-input" id="${subj.id}_exam" min="0" max="20" step="0.25"
+            placeholder="0 — 20" oninput="calcSubject('${subj.id}'); saveData()">
+        </div>`;
+      formulaHTML = t.formula_exam;
+    }
+
+    card.innerHTML = `
+      <div class="subject-header" onclick="toggleCard('${subj.id}')">
+        <div class="subject-left">
+          <div class="subject-coeff">${subj.coeff}</div>
+          <div class="subject-info">
+            <div class="subject-name">${subj.name_ar}</div>
+            <div class="subject-type-badge ${badgeClass}">${typeLabel}</div>
+          </div>
+        </div>
+        <div class="subject-right">
+          <div class="subject-grade-preview grade-empty" id="preview_${subj.id}">—</div>
+          <span class="chevron">▾</span>
+        </div>
+      </div>
+      <div class="subject-body" id="body_${subj.id}">
+        <div class="inputs-row">${inputsHTML}</div>
+        <div class="formula-hint">${formulaHTML}</div>
+      </div>`;
+
+    grid.appendChild(card);
+  });
+}
+
+function toggleCard(id) {
+  const card = document.getElementById('card_' + id);
+  const wasOpen = card.classList.contains('open');
+  document.querySelectorAll('.subject-card.open').forEach(c => c.classList.remove('open'));
+  if (!wasOpen) card.classList.add('open');
+}
+
+// =============================================
+// CALCULATION
+// =============================================
+function getVal(id) {
+  const el = document.getElementById(id);
+  if (!el) return null;
+  const v = parseFloat(el.value);
+  return isNaN(v) ? null : Math.min(20, Math.max(0, v));
+}
+
+function calcSubject(id) {
+  const subj = SUBJECTS.find(s => s.id === id);
+  if (!subj) return null;
+
+  let grade = null;
+
+  if (subj.type === 'TD_EXAM') {
+    const td = getVal(id + '_td'), exam = getVal(id + '_exam');
+    if (td !== null && exam !== null) grade = td * 0.4 + exam * 0.6;
+    else if (exam !== null) grade = exam * 0.6;
+    else if (td !== null) grade = td * 0.4;
+  } else if (subj.type === 'TP_EXAM') {
+    const tp = getVal(id + '_tp'), exam = getVal(id + '_exam');
+    if (tp !== null && exam !== null) grade = tp * 0.5 + exam * 0.5;
+    else if (exam !== null) grade = exam * 0.5;
+    else if (tp !== null) grade = tp * 0.5;
+  } else if (subj.type === 'TP') {
+    grade = getVal(id + '_tp');
+  } else if (subj.type === 'EXAM') {
+    grade = getVal(id + '_exam');
+  }
+
+  const preview = document.getElementById('preview_' + id);
+  if (preview) {
+    if (grade !== null) {
+      const complete = isSubjectComplete(subj);
+      preview.textContent = grade.toFixed(2);
+      preview.className = 'subject-grade-preview ' + getGradeClass(grade, complete);
+    } else {
+      preview.textContent = '—';
+      preview.className = 'subject-grade-preview grade-empty';
+    }
+  }
+
+  calcAll();
+  return grade;
+}
+
+function isSubjectComplete(subj) {
+  if (subj.type === 'TD_EXAM') return getVal(subj.id+'_td') !== null && getVal(subj.id+'_exam') !== null;
+  if (subj.type === 'TP_EXAM') return getVal(subj.id+'_tp') !== null && getVal(subj.id+'_exam') !== null;
+  if (subj.type === 'TP') return getVal(subj.id+'_tp') !== null;
+  if (subj.type === 'EXAM') return getVal(subj.id+'_exam') !== null;
+  return false;
+}
+
+function getGradeClass(g, complete) {
+  if (!complete) return 'grade-warn';
+  if (g >= 10) return 'grade-good';
+  return 'grade-bad';
+}
+
+function calcAll() {
+  let totalWeighted = 0, totalCoeff = 0, filled = 0;
+
+  SUBJECTS.forEach(subj => {
+    const g = calcSubject_silent(subj.id);
+    if (g !== null) {
+      totalWeighted += g * subj.coeff;
+      totalCoeff += subj.coeff;
+      if (isSubjectComplete(subj)) filled++;
+    }
+  });
+
+  const s4Avg = totalCoeff > 0 ? totalWeighted / TOTAL_COEFF : null;
+  const s3 = getVal('s3_grade');
+  const annual = (s4Avg !== null && s3 !== null) ? (s4Avg + s3) / 2 : null;
+
+  // Update results
+  updateResultCard('res_s4', 'res_s4_status', s4Avg, totalCoeff > 0);
+  updateResultCard('res_annual', 'res_annual_status', annual, annual !== null);
+
+  document.getElementById('res_filled').textContent = filled;
+
+  // Progress bar
+  const pct = (filled / SUBJECTS.length) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function calcSubject_silent(id) {
+  const subj = SUBJECTS.find(s => s.id === id);
+  if (!subj) return null;
+  if (subj.type === 'TD_EXAM') {
+    const td = getVal(id + '_td'), exam = getVal(id + '_exam');
+    if (td !== null && exam !== null) return td * 0.4 + exam * 0.6;
+    if (exam !== null) return exam * 0.6;
+    if (td !== null) return td * 0.4;
+  } else if (subj.type === 'TP_EXAM') {
+    const tp = getVal(id + '_tp'), exam = getVal(id + '_exam');
+    if (tp !== null && exam !== null) return tp * 0.5 + exam * 0.5;
+    if (exam !== null) return exam * 0.5;
+    if (tp !== null) return tp * 0.5;
+  } else if (subj.type === 'TP') return getVal(id + '_tp');
+  else if (subj.type === 'EXAM') return getVal(id + '_exam');
+  return null;
+}
+
+function updateResultCard(valId, statusId, val, hasData) {
+  const t = i18n[currentLang];
+  const el = document.getElementById(valId);
+  const st = document.getElementById(statusId);
+  if (!el) return;
+
+  if (val !== null && hasData) {
+    const prev = el.textContent;
+    el.textContent = val.toFixed(2);
+    if (prev !== el.textContent) el.classList.add('pulse');
+    setTimeout(() => el.classList.remove('pulse'), 400);
+
+    if (st) {
+      if (val >= 12) { st.textContent = t.pass; st.className = 'result-status status-pass'; }
+      else if (val >= 10) { st.textContent = t.avg; st.className = 'result-status status-warn'; }
+      else { st.textContent = t.fail; st.className = 'result-status status-fail'; }
+    }
+  } else {
+    el.textContent = '—';
+    if (st) { st.textContent = ''; st.className = 'result-status'; }
+  }
+}
+
+// =============================================
+// LOCAL STORAGE
+// =============================================
+function saveData() {
+  const data = { lang: currentLang, theme: currentTheme };
+  data.lastname = document.getElementById('student_lastname').value;
+  data.firstname = document.getElementById('student_firstname').value;
+  data.s3 = document.getElementById('s3_grade').value;
+  SUBJECTS.forEach(subj => {
+    if (subj.type === 'TD_EXAM') {
+      data[subj.id + '_td'] = document.getElementById(subj.id + '_td')?.value || '';
+      data[subj.id + '_exam'] = document.getElementById(subj.id + '_exam')?.value || '';
+    } else if (subj.type === 'TP_EXAM') {
+      data[subj.id + '_tp'] = document.getElementById(subj.id + '_tp')?.value || '';
+      data[subj.id + '_exam'] = document.getElementById(subj.id + '_exam')?.value || '';
+    } else if (subj.type === 'TP') {
+      data[subj.id + '_tp'] = document.getElementById(subj.id + '_tp')?.value || '';
+    } else if (subj.type === 'EXAM') {
+      data[subj.id + '_exam'] = document.getElementById(subj.id + '_exam')?.value || '';
+    }
+  });
+  localStorage.setItem('s4_calculator', JSON.stringify(data));
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem('s4_calculator');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.lang) setLang(data.lang, false);
+    if (data.theme) setTheme(data.theme, false);
+    if (data.lastname) document.getElementById('student_lastname').value = data.lastname;
+    if (data.firstname) document.getElementById('student_firstname').value = data.firstname;
+    if (data.s3) document.getElementById('s3_grade').value = data.s3;
+    SUBJECTS.forEach(subj => {
+      ['_td', '_exam', '_tp'].forEach(sfx => {
+        const key = subj.id + sfx;
+        if (data[key] !== undefined && data[key] !== '') {
+          const el = document.getElementById(key);
+          if (el) el.value = data[key];
+        }
+      });
+    });
+    calcAll();
+  } catch(e) {}
+}
+
+function confirmReset() {
+  const t = i18n[currentLang];
+  if (confirm(t.confirm_reset)) {
+    localStorage.removeItem('s4_calculator');
+    document.getElementById('student_lastname').value = '';
+    document.getElementById('student_firstname').value = '';
+    document.getElementById('s3_grade').value = '';
+    SUBJECTS.forEach(subj => {
+      ['_td', '_exam', '_tp'].forEach(sfx => {
+        const el = document.getElementById(subj.id + sfx);
+        if (el) el.value = '';
+      });
+      const prev = document.getElementById('preview_' + subj.id);
+      if (prev) { prev.textContent = '—'; prev.className = 'subject-grade-preview grade-empty'; }
+    });
+    ['res_s4', 'res_annual'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '—';
+    });
+    ['res_s4_status', 'res_annual_status'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.textContent = ''; el.className = 'result-status'; }
+    });
+    document.getElementById('res_filled').textContent = '0';
+    document.getElementById('progressBar').style.width = '0%';
+    showToast('🗑️', 'reset_msg');
+  }
+}
+
+// =============================================
+// LANGUAGE
+// =============================================
+function setLang(lang, save = true) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+  document.querySelectorAll('.lang-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', ['ar','fr','en'][i] === lang);
+  });
+
+  // Update all i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang][key]) el.textContent = i18n[lang][key];
+  });
+
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if (i18n[lang][key]) el.placeholder = i18n[lang][key];
+  });
+
+  // Rebuild subjects to update labels
+  buildSubjects();
+  loadInputsAfterRebuild();
+  if (save) saveData();
+}
+
+function loadInputsAfterRebuild() {
+  try {
+    const raw = localStorage.getItem('s4_calculator');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    SUBJECTS.forEach(subj => {
+      ['_td', '_exam', '_tp'].forEach(sfx => {
+        const key = subj.id + sfx;
+        if (data[key] !== undefined && data[key] !== '') {
+          const el = document.getElementById(key);
+          if (el) { el.value = data[key]; calcSubject(subj.id); }
+        }
+      });
+    });
+  } catch(e) {}
+}
+
+// =============================================
+// THEME
+// =============================================
+function toggleTheme() {
+  setTheme(currentTheme === 'light' ? 'dark' : 'light');
+}
+
+function setTheme(theme, save = true) {
+  currentTheme = theme;
+  document.body.setAttribute('data-theme', theme);
+  document.querySelector('.theme-btn').textContent = theme === 'light' ? '🌙' : '☀️';
+  if (save) saveData();
+}
+
+// =============================================
+// TOAST
+// =============================================
+function showToast(icon, msgKey) {
+  const t = i18n[currentLang];
+  const toast = document.getElementById('toast');
+  toast.textContent = icon + ' ' + (t[msgKey] || msgKey);
+  toast.className = 'toast toast-success show';
+  setTimeout(() => toast.classList.remove('show'), 2800);
+}
+
+// =============================================
+// PDF EXPORT
+// =============================================
+function exportPDF() {
+  // Arabic not supported by jsPDF fonts — use French for PDF when UI is in Arabic
+  const pdfLang = currentLang === 'ar' ? 'fr' : currentLang;
+  const t = i18n[pdfLang];
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const pageW = 210, pageH = 297;
+  const margin = 18;
+
+  // ---- HEADER BACKGROUND ----
+  doc.setFillColor(0, 137, 123);
+  doc.rect(0, 0, pageW, 42, 'F');
+
+  // Decorative stripe
+  doc.setFillColor(0, 184, 148);
+  doc.rect(0, 38, pageW, 4, 'F');
+
+  // Title
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text(t.pdf_title, pageW / 2, 16, { align: 'center' });
+
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.text(t.pdf_semester, pageW / 2, 25, { align: 'center' });
+  doc.text(t.pdf_year, pageW / 2, 32, { align: 'center' });
+
+  let y = 52;
+
+  // ---- STUDENT INFO BOX ----
+  const lastname = document.getElementById('student_lastname').value || '—';
+  const firstname = document.getElementById('student_firstname').value || '—';
+
+  doc.setFillColor(240, 250, 248);
+  doc.roundedRect(margin, y, pageW - margin * 2, 22, 3, 3, 'F');
+  doc.setDrawColor(0, 184, 148);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(margin, y, pageW - margin * 2, 22, 3, 3, 'S');
+
+  doc.setTextColor(0, 137, 123);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.text(t.pdf_student + ':', margin + 5, y + 8);
+  doc.setTextColor(30, 30, 30);
+  doc.setFontSize(12);
+  doc.text(lastname + '  ' + firstname, margin + 28, y + 8);
+
+  doc.setTextColor(80, 80, 80);
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'normal');
+  doc.text(t.pdf_specialty, margin + 5, y + 16);
+
+  y += 30;
+
+  // ---- TABLE ----
+  const tableData = [];
+  SUBJECTS.forEach(subj => {
+    const g = calcSubject_silent(subj.id);
+    const gradeStr = g !== null ? g.toFixed(2) : '—';
+    const weighted = g !== null ? (g * subj.coeff).toFixed(2) : '—';
+    const typeLabel = subj.type === 'TD_EXAM' ? 'TD+Exam' :
+                      subj.type === 'TP_EXAM' ? 'TP+Exam' :
+                      subj.type === 'TP'      ? 'TP' : 'Exam';
+
+    let fullName = subj.name_ar;
+    // Truncate if too long
+    if (fullName.length > 42) fullName = fullName.substring(0, 39) + '...';
+
+    tableData.push([fullName, subj.coeff, gradeStr, weighted, typeLabel]);
+  });
+
+  doc.autoTable({
+    startY: y,
+    head: [[t.pdf_col_subject, t.pdf_col_coeff, t.pdf_col_grade, t.pdf_col_weighted, t.pdf_col_type]],
+    body: tableData,
+    margin: { left: margin, right: margin },
+    headStyles: {
+      fillColor: [0, 137, 123],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      fontSize: 9,
+      halign: 'center',
+    },
+    bodyStyles: {
+      fontSize: 8.5,
+      textColor: [30, 30, 30],
+    },
+    columnStyles: {
+      0: { halign: 'left', cellWidth: 72 },
+      1: { halign: 'center', cellWidth: 18 },
+      2: { halign: 'center', cellWidth: 22 },
+      3: { halign: 'center', cellWidth: 28 },
+      4: { halign: 'center', cellWidth: 28 },
+    },
+    alternateRowStyles: { fillColor: [245, 252, 250] },
+    didDrawCell: function(data) {
+      if (data.section === 'body' && data.column.index === 2) {
+        const val = parseFloat(data.cell.text[0]);
+        if (!isNaN(val)) {
+          if (val >= 10) data.cell.styles.textColor = [0, 137, 123];
+          else data.cell.styles.textColor = [220, 80, 60];
+        }
+      }
+    },
+    tableLineColor: [200, 220, 215],
+    tableLineWidth: 0.2,
+  });
+
+  y = doc.lastAutoTable.finalY + 12;
+
+  // ---- AVERAGES BOX ----
+  const s4 = calcFinalAvg();
+  const s3 = getVal('s3_grade');
+  const annual = (s4 !== null && s3 !== null) ? (s4 + s3) / 2 : null;
+
+  const boxW = (pageW - margin * 2 - 10) / (annual !== null ? 3 : 2);
+
+  const boxes = [
+    { label: t.pdf_s4avg, value: s4 !== null ? s4.toFixed(2) : '—', color: [0, 137, 123] },
+  ];
+  if (s3 !== null) boxes.push({ label: t.pdf_s3avg, value: s3.toFixed ? s3.toFixed(2) : s3+'', color: [0, 184, 148] });
+  if (annual !== null) boxes.push({ label: t.pdf_annual, value: annual.toFixed(2), color: [108, 92, 231] });
+
+  const bW = (pageW - margin * 2 - (boxes.length - 1) * 5) / boxes.length;
+  boxes.forEach((box, i) => {
+    const bx = margin + i * (bW + 5);
+    doc.setFillColor(...box.color);
+    doc.roundedRect(bx, y, bW, 22, 3, 3, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+    doc.text(box.label, bx + bW / 2, y + 8, { align: 'center' });
+    doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+    doc.text(box.value, bx + bW / 2, y + 17, { align: 'center' });
+  });
+
+  y += 30;
+
+  // ---- FOOTER ----
+  doc.setDrawColor(0, 184, 148);
+  doc.setLineWidth(0.4);
+  doc.line(margin, pageH - 18, pageW - margin, pageH - 18);
+  doc.setTextColor(120, 120, 120);
+  doc.setFontSize(7.5); doc.setFont('helvetica', 'italic');
+  doc.text(t.pdf_footer, pageW / 2, pageH - 12, { align: 'center' });
+
+  // Date
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('fr-DZ', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  doc.text(dateStr, margin, pageH - 12);
+
+  if (currentLang === 'ar') showToast('📄', 'pdf_ar_notice');
+  else showToast('📄', 'pdf_msg');
+  const fname = `كشف_النقاط_S4_${lastname}_${firstname}.pdf`.replace(/\s/g, '_');
+  doc.save(fname);
+}
+
+function calcFinalAvg() {
+  let totalWeighted = 0, hasAny = false;
+  SUBJECTS.forEach(subj => {
+    const g = calcSubject_silent(subj.id);
+    if (g !== null) { totalWeighted += g * subj.coeff; hasAny = true; }
+  });
+  return hasAny ? totalWeighted / TOTAL_COEFF : null;
+}
+
+// =============================================
+// INIT
+// =============================================
+window.addEventListener('DOMContentLoaded', () => {
+  buildSubjects();
+  loadData();
+
+  // Re-calc previews after load
+  SUBJECTS.forEach(subj => calcSubject(subj.id));
+  calcAll();
+});
+</script>
+</body>
+</html>
